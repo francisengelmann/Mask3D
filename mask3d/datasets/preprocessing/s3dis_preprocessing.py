@@ -6,7 +6,7 @@ from fire import Fire
 from loguru import logger
 from natsort import natsorted
 
-from datasets.preprocessing.base_preprocessing import BasePreprocessing
+from mask3d.datasets.preprocessing.base_preprocessing import BasePreprocessing
 
 
 class S3DISPreprocessing(BasePreprocessing):

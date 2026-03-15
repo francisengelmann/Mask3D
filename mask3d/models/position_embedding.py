@@ -7,7 +7,7 @@ import torch
 from torch import nn
 import numpy as np
 
-# from utils.pc_util import shift_scale_points
+# from mask3d.utils.pc_util import shift_scale_points
 
 
 def shift_scale_points(pred_xyz, src_range, dst_range=None):

@@ -1,6 +1,6 @@
 import hydra
 from omegaconf import DictConfig, OmegaConf
-from models.mask3d import Mask3D
+from mask3d.models.mask3d import Mask3D
 import os
 import torch
 
@@ -9,14 +9,14 @@ import open3d as o3d
 import numpy as np
 import albumentations as A
 
-from utils.utils import (
+from mask3d.utils.utils import (
     flatten_dict,
     load_baseline_model,
     load_checkpoint_with_missing_or_exsessive_keys,
     load_backbone_checkpoint_with_missing_or_exsessive_keys,
 )
 
-from datasets.scannet200.scannet200_constants import (
+from mask3d.datasets.scannet200.scannet200_constants import (
     SCANNET_COLOR_MAP_200,
     SCANNET_COLOR_MAP_20,
     VALID_CLASS_IDS_200,

@@ -6,7 +6,7 @@ from natsort import natsorted
 from loguru import logger
 import pandas as pd
 
-from datasets.preprocessing.base_preprocessing import BasePreprocessing
+from mask3d.datasets.preprocessing.base_preprocessing import BasePreprocessing
 
 
 class STPLS3DPreprocessing(BasePreprocessing):

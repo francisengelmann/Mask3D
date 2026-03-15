@@ -60,7 +60,7 @@ import os
 import sys
 
 # BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-from utils.votenet_utils.metric_util import calc_iou  # axis-aligned 3D box IoU
+from mask3d.utils.votenet_utils.metric_util import calc_iou  # axis-aligned 3D box IoU
 
 
 def get_iou(bb1, bb2):

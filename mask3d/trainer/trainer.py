@@ -11,8 +11,8 @@ import matplotlib
 from benchmark.evaluate_semantic_instance import evaluate
 from collections import defaultdict
 from sklearn.cluster import DBSCAN
-from utils.votenet_utils.eval_det import eval_det
-from datasets.scannet200.scannet200_splits import (
+from mask3d.utils.votenet_utils.eval_det import eval_det
+from mask3d.datasets.scannet200.scannet200_splits import (
     HEAD_CATS_SCANNET_200,
     TAIL_CATS_SCANNET_200,
     COMMON_CATS_SCANNET_200,
@@ -24,7 +24,7 @@ import MinkowskiEngine as ME
 import numpy as np
 import pytorch_lightning as pl
 import torch
-from models.metrics import IoU
+from mask3d.models.metrics import IoU
 import random
 import colorsys
 from typing import List, Tuple

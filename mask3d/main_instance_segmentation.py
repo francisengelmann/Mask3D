@@ -5,9 +5,9 @@ from uuid import uuid4
 import hydra
 from dotenv import load_dotenv
 from omegaconf import DictConfig, OmegaConf
-from trainer.trainer import InstanceSegmentation, RegularCheckpointing
+from mask3d.trainer.trainer import InstanceSegmentation, RegularCheckpointing
 from pytorch_lightning.callbacks import ModelCheckpoint
-from utils.utils import (
+from mask3d.utils.utils import (
     flatten_dict,
     load_baseline_model,
     load_checkpoint_with_missing_or_exsessive_keys,

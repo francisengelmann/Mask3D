@@ -10,7 +10,7 @@ from random import randrange
 
 import numpy
 import torch
-from datasets.random_cuboid import RandomCuboid
+from mask3d.datasets.random_cuboid import RandomCuboid
 
 import albumentations as A
 import numpy as np
@@ -20,7 +20,7 @@ import yaml
 
 # from yaml import CLoader as Loader
 from torch.utils.data import Dataset
-from datasets.scannet200.scannet200_constants import (
+from mask3d.datasets.scannet200.scannet200_constants import (
     SCANNET_COLOR_MAP_200,
     SCANNET_COLOR_MAP_20,
 )

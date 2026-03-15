@@ -6,10 +6,10 @@ from fire import Fire
 from natsort import natsorted
 from loguru import logger
 
-from datasets.preprocessing.base_preprocessing import BasePreprocessing
-from utils.point_cloud_utils import load_ply_with_normals
+from mask3d.datasets.preprocessing.base_preprocessing import BasePreprocessing
+from mask3d.utils.point_cloud_utils import load_ply_with_normals
 
-from datasets.scannet200.scannet200_constants import (
+from mask3d.datasets.scannet200.scannet200_constants import (
     VALID_CLASS_IDS_200,
     SCANNET_COLOR_MAP_200,
     CLASS_LABELS_200,

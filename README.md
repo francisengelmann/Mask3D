@@ -69,9 +69,10 @@ python setup.py install
 
 ```bash
 cd ../..
-pip install pytorch-lightning
-pip install .
+uv pip install pytorch-lightning
+uv pip install .
 ```
+
 
 ```bash
 uv pip install loguru hydra-core einops trimesh open3d
