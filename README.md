@@ -52,7 +52,7 @@ sudo apt install libopenblas-dev
 python setup.py install --force_cuda --blas=openblas
 ```
 
-# Install Segmentator
+# Install Segmentator and other stuff
 ```bash
 cd ..
 git clone https://github.com/ScanNet/ScanNet.git
@@ -61,7 +61,6 @@ git checkout 3e5726500896748521a6ceb81271b0f5b2c0e7d2
 make
 ```
 
-# Install Segmentator
 ```bash
 cd ../..
 cd pointnet2
@@ -73,6 +72,17 @@ cd ../..
 pip install pytorch-lightning
 pip install .
 ```
+
+```bash
+uv pip install loguru hydra-core einops trimesh open3d
+```
+
+## Running
+```bash
+bash download_checkpoint.sh
+python run_inference.py
+```
+
 
 ## Installation
 
