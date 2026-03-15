@@ -1,10 +1,78 @@
-# Packaged version of Mask3D to be used in LabelMaker
+# Mask3D
+
+
+
 
 ## Installation (most recent steps)
+
+# Install uv python-package manager (if not yet installed)
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+source $HOME/.local/bin/env
+```
+
+# Set up envs
+```bash
 export TORCH_CUDA_ARCH_LIST="7.5" # TITAN RTX (adapt for your own GPU)
-export MAX_JOBS=24
+export MAX_JOBS=24  # adapt to your cpu
+```
 
+# Clone repo and setup virtual env
+```bash
+git clone git@github.com:francisengelmann/Mask3D.git
+cd Mask3D
+uv venv
+source .venv/bin/activate
+```
 
+# Install dependencies
+```bash
+uv pip install ninja cython numpy cmake
+uv pip install torch torchvision
+uv pip install torch-scatter -f https://data.pyg.org/whl/torch-2.10.0+cu128.html
+uv pip install --no-build-isolation 'git+https://github.com/facebookresearch/detectron2.git'
+```
+
+Verify that everything worked well:
+```bash
+python -c "import torch; print(torch.__version__); print(torch.version.cuda); print(torch.cuda.is_available()); print(torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'no gpu')"
+python -c "import torch_scatter; print('torch_scatter OK')"
+python -c "import detectron2; print('detectron2 OK')"
+```
+
+# Install Minkowski
+```bash
+cd third_party
+git clone --recursive "https://github.com/NVIDIA/MinkowskiEngine"
+cd ..
+chmod +x patch_minkowski_cuda12.sh
+./patch_minkowski_cuda12.sh
+cd third_party/MinkowskiEngine
+sudo apt install libopenblas-dev
+python setup.py install --force_cuda --blas=openblas
+```
+
+# Install Segmentator
+```bash
+cd ..
+git clone https://github.com/ScanNet/ScanNet.git
+cd ScanNet/Segmentator
+git checkout 3e5726500896748521a6ceb81271b0f5b2c0e7d2
+make
+```
+
+# Install Segmentator
+```bash
+cd ../..
+cd pointnet2
+python setup.py install
+```
+
+```bash
+cd ../..
+pip install pytorch-lightning
+pip install .
+```
 
 ## Installation
 
