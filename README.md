@@ -7,7 +7,7 @@
 # Install libopenblas-dev (issue #115, thanks WindWing)
 # sudo apt-get install libopenblas-dev
 
-export TORCH_CUDA_ARCH_LIST="6.0 6.1 6.2 7.0 7.2 7.5 8.0 8.6"
+export TORCH_CUDA_ARCH_LIST="7.5" - TITAN RTX (adapt for your own GPU)
 
 conda env create -f environment.yml
 
