@@ -1,5 +1,11 @@
 # Packaged version of Mask3D to be used in LabelMaker
 
+## Installation (most recent steps)
+export TORCH_CUDA_ARCH_LIST="7.5" # TITAN RTX (adapt for your own GPU)
+export MAX_JOBS=24
+
+
+
 ## Installation
 
 ```
@@ -7,11 +13,14 @@
 # Install libopenblas-dev (issue #115, thanks WindWing)
 # sudo apt-get install libopenblas-dev
 
-export TORCH_CUDA_ARCH_LIST="7.5" - TITAN RTX (adapt for your own GPU)
+export TORCH_CUDA_ARCH_LIST="7.5" # TITAN RTX (adapt for your own GPU)
+export MAX_JOBS=24
 
 conda env create -f environment.yml
 
 conda activate mask3d_cuda113
+
+pip3 install torch torchvision
 
 pip3 install torch==1.12.1+cu113 torchvision==0.13.1+cu113 --extra-index-url https://download.pytorch.org/whl/cu113
 pip3 install torch-scatter -f https://data.pyg.org/whl/torch-1.12.1+cu113.html
