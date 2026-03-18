@@ -1,23 +1,20 @@
 # Mask3D
 
+## Installation (18.03.2026)
 
-
-
-## Installation (most recent steps)
-
-# Install uv python-package manager (if not yet installed)
+### Install uv python-package manager (if not yet installed)
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 source $HOME/.local/bin/env
 ```
 
-# Set up envs
+### Set up envs
 ```bash
 export TORCH_CUDA_ARCH_LIST="7.5" # TITAN RTX (adapt for your own GPU)
 export MAX_JOBS=24  # adapt to your cpu
 ```
 
-# Clone repo and setup virtual env
+### Clone repo and setup virtual env
 ```bash
 git clone git@github.com:francisengelmann/Mask3D.git
 cd Mask3D
@@ -25,7 +22,7 @@ uv venv
 source .venv/bin/activate
 ```
 
-# Install dependencies
+### Install dependencies
 ```bash
 uv pip install ninja cython numpy cmake
 uv pip install torch torchvision
@@ -40,7 +37,7 @@ python -c "import torch_scatter; print('torch_scatter OK')"
 python -c "import detectron2; print('detectron2 OK')"
 ```
 
-# Install Minkowski
+### Install Minkowski
 ```bash
 cd third_party
 git clone --recursive "https://github.com/NVIDIA/MinkowskiEngine"
@@ -52,7 +49,7 @@ sudo apt install libopenblas-dev
 python setup.py install --force_cuda --blas=openblas
 ```
 
-# Install Segmentator and other stuff
+### Install Segmentator and other Stuff
 ```bash
 cd ..
 git clone https://github.com/ScanNet/ScanNet.git
@@ -73,9 +70,8 @@ uv pip install pytorch-lightning
 uv pip install .
 ```
 
-
 ```bash
-uv pip install loguru hydra-core einops trimesh open3d
+uv pip install loguru hydra-core einops trimesh open3d albumentations
 ```
 
 ## Running
@@ -84,8 +80,9 @@ bash download_checkpoint.sh
 python run_inference.py
 ```
 
+Below is the original stuff
 
-## Installation
+# Installation
 
 ```
 # Some users experienced issues on Ubuntu with an AMD CPU

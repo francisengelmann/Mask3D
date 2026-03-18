@@ -10,7 +10,7 @@ from mask3d.utils.utils import (
 class InstanceSegmentation(torch.nn.Module):
     def __init__(self, cfg):
         super().__init__()
-        self.model = hydra.utils.instantiate(cfg.model)
+        self.model = hydra.utils.instantiate(cfg.model, _recursive_=False)
 
 
     def forward(self, x, raw_coordinates=None):
