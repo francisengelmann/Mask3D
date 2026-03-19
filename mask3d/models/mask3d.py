@@ -9,7 +9,6 @@ from mask3d.models.modules.common import conv
 from mask3d.models.position_embedding import PositionEmbeddingCoordsSine
 from mask3d.models.modules.helpers_3detr import GenericMLP
 from torch_scatter import scatter_mean, scatter_max, scatter_min
-from torch.cuda.amp import autocast
 
 from pointnet2.pointnet2_utils import furthest_point_sample
 
@@ -222,7 +221,7 @@ class Mask3D(nn.Module):
                 scene_min = coords_batch.min(dim=0)[0][None, ...]
                 scene_max = coords_batch.max(dim=0)[0][None, ...]
 
-                with autocast(enabled=False):
+                with torch.amp.autocast("cuda", enabled=False):
                     tmp = self.pos_enc(
                         coords_batch[None, ...].float(),
                         input_range=[scene_min, scene_max],

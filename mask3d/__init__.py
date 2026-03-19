@@ -148,7 +148,7 @@ def map_output_to_pointcloud(mesh,
                              outputs, 
                              inverse_map, 
                              label_space='scannet200',
-                             confidence_threshold=0.9):
+                             confidence_threshold=0.8):
     
     # parse predictions
     logits = outputs["pred_logits"]
@@ -183,8 +183,15 @@ def map_output_to_pointcloud(mesh,
 
     labels_mapped = np.zeros((len(mesh.vertices), 1))
 
-    for i, (l, c, m) in enumerate(
-        sorted(zip(labels, confidences, masks_binary), reverse=False)):
+    # Sort by confidence so lower-confidence instances are written first,
+    # allowing higher-confidence predictions to overwrite overlaps.
+    instances = sorted(
+        zip(labels, confidences, masks_binary),
+        key=lambda x: x[1],
+        reverse=False,
+    )
+
+    for i, (l, c, m) in enumerate(instances):
         
         if label_space == 'scannet200':
             label_offset = 2
@@ -193,6 +200,9 @@ def map_output_to_pointcloud(mesh,
             else:
                 l = int(l) + label_offset
                         
+        if torch.is_tensor(m):
+            m = m.cpu().numpy()
+
         labels_mapped[m == 1] = l
         
     return labels_mapped
