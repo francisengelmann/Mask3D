@@ -7,7 +7,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 
 # load input data
-pointcloud_file = 'data/scaniverse.ply'
+pointcloud_file = 'data/office_usi.ply'
 mesh = load_mesh(pointcloud_file)
 
 # prepare data
@@ -26,4 +26,4 @@ import numpy as np
 unique, counts = np.unique(labels, return_counts=True)
 
 # save colorized mesh
-save_colorized_mesh(mesh, labels, 'data/pcl_labelled2.ply', colormap='scannet200')
+save_colorized_mesh(mesh, labels, 'data/office_usi_labelled.ply', colormap='scannet200')
