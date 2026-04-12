@@ -1,38 +1,82 @@
-## Mask3D: Mask Transformer for 3D Instance Segmentation
-<div align="center">
-<a href="https://jonasschult.github.io/">Jonas Schult</a><sup>1</sup>, <a href="https://francisengelmann.github.io/">Francis Engelmann</a><sup>2,3</sup>, <a href="https://www.vision.rwth-aachen.de/person/10/">Alexander Hermans</a><sup>1</sup>, <a href="https://orlitany.github.io/">Or Litany</a><sup>4</sup>, <a href="https://inf.ethz.ch/people/person-detail.MjYyNzgw.TGlzdC8zMDQsLTg3NDc3NjI0MQ==.html">Siyu Tang</a><sup>3</sup>,  <a href="https://www.vision.rwth-aachen.de/person/1/">Bastian Leibe</a><sup>1</sup>
+# Mask3D
 
-<sup>1</sup>RWTH Aachen University <sup>2</sup>ETH AI Center <sup>3</sup>ETH Zurich <sup>4</sup>NVIDIA
+Mask3D is a method for 3D semantic instance segmentation. This is an updated code base using current libraries.
 
-Mask3D predicts accurate 3D semantic instances achieving state-of-the-art on ScanNet, ScanNet200, S3DIS and STPLS3D.
+## Installation Instructions
 
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/mask3d-for-3d-semantic-instance-segmentation/3d-instance-segmentation-on-scannetv2)](https://paperswithcode.com/sota/3d-instance-segmentation-on-scannetv2?p=mask3d-for-3d-semantic-instance-segmentation)
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/mask3d-for-3d-semantic-instance-segmentation/3d-instance-segmentation-on-scannet200)](https://paperswithcode.com/sota/3d-instance-segmentation-on-scannet200?p=mask3d-for-3d-semantic-instance-segmentation)
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/mask3d-for-3d-semantic-instance-segmentation/3d-instance-segmentation-on-s3dis)](https://paperswithcode.com/sota/3d-instance-segmentation-on-s3dis?p=mask3d-for-3d-semantic-instance-segmentation)
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/mask3d-for-3d-semantic-instance-segmentation/3d-instance-segmentation-on-stpls3d)](https://paperswithcode.com/sota/3d-instance-segmentation-on-stpls3d?p=mask3d-for-3d-semantic-instance-segmentation)
+Install `uv` if not already done:
+```sh
+curl -LsSf https://astral.sh/uv/install.sh | sh
+source $HOME/.local/bin/env
+```
 
-<a href="https://pytorch.org/get-started/locally/"><img alt="PyTorch" src="https://img.shields.io/badge/PyTorch-ee4c2c?logo=pytorch&logoColor=white"></a>
-<a href="https://pytorchlightning.ai/"><img alt="Lightning" src="https://img.shields.io/badge/-Lightning-792ee5?logo=pytorchlightning&logoColor=white"></a>
-<a href="https://hydra.cc/"><img alt="Config: Hydra" src="https://img.shields.io/badge/Config-Hydra-89b8cd"></a>
+Set environment variables for your specific GPU and CPU:
+```sh
+export TORCH_CUDA_ARCH_LIST="7.5" # TITAN RTX (adapt for your own GPU)
+export MAX_JOBS=24  # adapt to your cpu
+```
 
-![teaser](./docs/teaser.jpg)
+Clone this repository:
+```sh
+git clone git@github.com:francisengelmann/Mask3D.git
+cd Mask3D
+uv venv
+source .venv/bin/activate
+```
 
-</div>
-<br><br>
+Install required packages:
+```sh
+uv pip install ninja cython numpy cmake
+uv pip install torch torchvision
+uv pip install torch-scatter -f https://data.pyg.org/whl/torch-2.10.0+cu128.html
+uv pip install --no-build-isolation 'git+https://github.com/facebookresearch/detectron2.git'
+```
 
-[[Project Webpage](https://jonasschult.github.io/Mask3D/)]
-[[Paper](https://arxiv.org/abs/2210.03105)]
-[[Demo](https://francisengelmann.github.io/mask3d/)]
+Test if everything worked:
+```sh
+python -c "import torch; print(torch.__version__); print(torch.version.cuda); print(torch.cuda.is_available()); print(torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'no gpu')"
+python -c "import torch_scatter; print('torch_scatter OK')"
+python -c "import detectron2; print('detectron2 OK')"
+```
+
+Compile third party packages:
+```sh
+cd third_party
+git clone --recursive "https://github.com/NVIDIA/MinkowskiEngine"
+cd ..
+chmod +x patch_minkowski_cuda12.sh
+./patch_minkowski_cuda12.sh
+cd third_party/MinkowskiEngine
+sudo apt install libopenblas-dev
+python setup.py install --force_cuda --blas=openblas
+
+cd ..
+git clone https://github.com/ScanNet/ScanNet.git
+cd ScanNet/Segmentator
+git checkout 3e5726500896748521a6ceb81271b0f5b2c0e7d2
+make
+
+cd ../..
+cd pointnet2
+python setup.py install
+
+cd ../..
+uv pip install pytorch-lightning
+```
+<!-- uv pip install . -->
 
 
-## News
+Install more packages:
+```sh
+uv pip install loguru hydra-core einops trimesh open3d albumentations dotenv pyviz3d imageio plyfile wandb volumentations click
+```
 
-* **29. October 2023**: Check out this [easy setup](https://github.com/cvg/Mask3D) for Mask3D.
-* **17. January 2023**: Mask3D is accepted at ICRA 2023. :fire:
-* **14. October 2022**: STPLS3D support added.
-* **10. October 2022**: Mask3D ranks 2nd on the [STPLS3D Challenge](https://codalab.lisn.upsaclay.fr/competitions/4646#results) hosted by the [Urban3D Workshop](https://urban3dchallenge.github.io/) at ECCV 2022.
-* **6. October 2022**: [Mask3D preprint](https://arxiv.org/abs/2210.03105) released on arXiv.
-* **25. September 2022**: Code released.
+Download the model weights for the ScanNet200 test set:
+```sh
+bash download_checkpoint.sh
+```
+
+./scripts/scannet200/run_scannet200_benchmark_eval.sh
 
 ## Code structure
 We adapt the codebase of [Mix3D](https://github.com/kumuji/mix3d) which provides a highly modularized framework for 3D Semantic Segmentation based on the MinkowskiEngine.
@@ -59,51 +103,7 @@ We adapt the codebase of [Mix3D](https://github.com/kumuji/mix3d) which provides
 └── saved                             <- folder that stores models and logs
 ```
 
-### Dependencies :memo:
-The main dependencies of the project are the following:
-```yaml
-python: 3.10.9
-cuda: 11.3
-```
-You can set up a conda environment as follows
-```
-# Some users experienced issues on Ubuntu with an AMD CPU
-# Install libopenblas-dev (issue #115, thanks WindWing)
-# sudo apt-get install libopenblas-dev
-
-export TORCH_CUDA_ARCH_LIST="6.0 6.1 6.2 7.0 7.2 7.5 8.0 8.6"
-
-conda env create -f environment.yml
-
-conda activate mask3d_cuda113
-
-pip3 install torch==1.12.1+cu113 torchvision==0.13.1+cu113 --extra-index-url https://download.pytorch.org/whl/cu113
-pip3 install torch-scatter -f https://data.pyg.org/whl/torch-1.12.1+cu113.html
-pip3 install 'git+https://github.com/facebookresearch/detectron2.git@710e7795d0eeadf9def0e7ef957eea13532e34cf' --no-deps
-
-mkdir third_party
-cd third_party
-
-git clone --recursive "https://github.com/NVIDIA/MinkowskiEngine"
-cd MinkowskiEngine
-git checkout 02fc608bea4c0549b0a7b00ca1bf15dee4a0b228
-python setup.py install --force_cuda --blas=openblas
-
-cd ..
-git clone https://github.com/ScanNet/ScanNet.git
-cd ScanNet/Segmentator
-git checkout 3e5726500896748521a6ceb81271b0f5b2c0e7d2
-make
-
-cd ../../pointnet2
-python setup.py install
-
-cd ../../
-pip3 install pytorch-lightning==1.7.2
-```
-
-### Data preprocessing :hammer:
-After installing the dependencies, we preprocess the datasets.
+# Instructions from the Original Mask3D Repo
 
 #### ScanNet / ScanNet200
 First, we apply Felzenswalb and Huttenlocher's Graph Based Image Segmentation algorithm to the test scenes using the default parameters.
