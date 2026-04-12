@@ -77,7 +77,13 @@ Download the model weights for the ScanNet200 test set:
 bash download_checkpoint.sh
 ```
 
-./scripts/scannet200/run_scannet200_benchmark_eval.sh
+## Ongoing development
+- `./scripts/scannet200/run_scannet200_benchmark_eval.sh` - fully vibe-coded inference
+- `run.py` - more hand-coded version to understand what's going on
+
+
+# Prior Instructions from the Original Mask3D Repo
+
 
 ## Code structure
 We adapt the codebase of [Mix3D](https://github.com/kumuji/mix3d) which provides a highly modularized framework for 3D Semantic Segmentation based on the MinkowskiEngine.
@@ -103,8 +109,6 @@ We adapt the codebase of [Mix3D](https://github.com/kumuji/mix3d) which provides
 ├── README.md
 └── saved                             <- folder that stores models and logs
 ```
-
-# Instructions from the Original Mask3D Repo
 
 #### ScanNet / ScanNet200
 First, we apply Felzenswalb and Huttenlocher's Graph Based Image Segmentation algorithm to the test scenes using the default parameters.
