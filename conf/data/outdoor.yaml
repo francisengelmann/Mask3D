@@ -1,4 +1,3 @@
-# @package _group_
 
 # these parameters are inherited by datasets, data_loaders and collators
 # but they might be overwritten

@@ -1,4 +1,3 @@
-# @package _group_
 _target_: models.Mask3D
 
 # transformer parameters

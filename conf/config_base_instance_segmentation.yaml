@@ -52,6 +52,7 @@ general:
   gpus: 1
 
 defaults:
+  - _self_
   - data: indoor
   - data/data_loaders: simple_loader
   - data/datasets: scannet

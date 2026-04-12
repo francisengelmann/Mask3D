@@ -1,4 +1,3 @@
-# @package _group_
 - _target_: pytorch_lightning.loggers.NeptuneLogger
   project_name: ${general.workspace}/${general.project_name}
   experiment_name: ${general.experiment_name}

@@ -1,4 +1,3 @@
-# @package _group_
 - _target_: pytorch_lightning.loggers.CSVLogger
   save_dir: ${general.save_dir}
   name: ${general.experiment_id}

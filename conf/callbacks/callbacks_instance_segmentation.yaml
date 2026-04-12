@@ -1,4 +1,3 @@
-# @package _group_
 - _target_: pytorch_lightning.callbacks.ModelCheckpoint
   monitor: val_mean_ap_50
   save_last: true
