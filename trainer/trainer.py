@@ -73,7 +73,9 @@ class InstanceSegmentation(pl.LightningModule):
         self.config = config
         self.save_hyperparameters()
         # model
-        self.model = hydra.utils.instantiate(config.model)
+        self.model = hydra.utils.instantiate(
+            config.model, _recursive_=False
+        )
         self.optional_freeze = nullcontext
         if config.general.freeze_backbone:
             self.optional_freeze = torch.no_grad
@@ -112,6 +114,9 @@ class InstanceSegmentation(pl.LightningModule):
         self.iou = IoU()
         # misc
         self.labels_info = dict()
+        self.training_step_outputs = []
+        self.validation_step_outputs = []
+        self.test_step_outputs = []
 
     def forward(
         self, x, point2segment=None, raw_coordinates=None, is_eval=False
@@ -201,10 +206,16 @@ class InstanceSegmentation(pl.LightningModule):
         )
 
         self.log_dict(logs)
-        return sum(losses.values())
+
+        total_loss = sum(losses.values())
+        self.training_step_outputs.append(total_loss.detach().cpu().item())
+        return total_loss
 
     def validation_step(self, batch, batch_idx):
-        return self.eval_step(batch, batch_idx)
+        output = self.eval_step(batch, batch_idx)
+        if isinstance(output, dict):
+            self.validation_step_outputs.append(output)
+        return output
 
     def export(self, pred_masks, scores, pred_classes, file_names, decoder_id):
         root_path = f"eval_output"
@@ -233,15 +244,19 @@ class InstanceSegmentation(pl.LightningModule):
                         f"pred_mask/{file_name}_{real_id}.txt {pred_class} {score}\n"
                     )
 
-    def training_epoch_end(self, outputs):
-        train_loss = sum([out["loss"].cpu().item() for out in outputs]) / len(
-            outputs
-        )
-        results = {"train_loss_mean": train_loss}
-        self.log_dict(results)
+    def on_train_epoch_end(self):
+        if not self.training_step_outputs:
+            return
 
-    def validation_epoch_end(self, outputs):
-        self.test_epoch_end(outputs)
+        train_loss = sum(self.training_step_outputs) / len(
+            self.training_step_outputs
+        )
+        self.log_dict({"train_loss_mean": train_loss})
+        self.training_step_outputs.clear()
+
+    def on_validation_epoch_end(self):
+        self._finalize_eval_epoch(self.validation_step_outputs)
+        self.validation_step_outputs.clear()
 
     def save_visualizations(
         self,
@@ -556,7 +571,10 @@ class InstanceSegmentation(pl.LightningModule):
             return 0.0
 
     def test_step(self, batch, batch_idx):
-        return self.eval_step(batch, batch_idx)
+        output = self.eval_step(batch, batch_idx)
+        if isinstance(output, dict):
+            self.test_step_outputs.append(output)
+        return output
 
     def get_full_res_mask(
         self, mask, inverse_map, point2segment_full, is_heatmap=False
@@ -1225,11 +1243,14 @@ class InstanceSegmentation(pl.LightningModule):
         self.bbox_preds = dict()
         self.bbox_gt = dict()
 
-    def test_epoch_end(self, outputs):
+    def _finalize_eval_epoch(self, outputs):
         if self.config.general.export:
             return
 
         self.eval_instance_epoch_end()
+
+        if not outputs:
+            return
 
         dd = defaultdict(list)
         for output in outputs:
@@ -1249,6 +1270,10 @@ class InstanceSegmentation(pl.LightningModule):
         )
 
         self.log_dict(dd)
+
+    def on_test_epoch_end(self):
+        self._finalize_eval_epoch(self.test_step_outputs)
+        self.test_step_outputs.clear()
 
     def configure_optimizers(self):
         optimizer = hydra.utils.instantiate(

@@ -5,7 +5,7 @@
 third_party/MinkowskiEngine
 third_party/ScanNet
 *.out
-
+*.ply
 .vscode/
 
 

@@ -1,4 +1,5 @@
 import logging
+import inspect
 import os
 from hashlib import md5
 from uuid import uuid4
@@ -14,6 +15,62 @@ from utils.utils import (
     load_backbone_checkpoint_with_missing_or_exsessive_keys,
 )
 from pytorch_lightning import Trainer, seed_everything
+
+
+def _parse_devices(gpus_cfg):
+    if gpus_cfg is None:
+        return 1
+
+    if isinstance(gpus_cfg, int):
+        return gpus_cfg
+
+    if isinstance(gpus_cfg, str):
+        value = gpus_cfg.strip()
+        if not value:
+            return 1
+        if "," in value:
+            return [int(item.strip()) for item in value.split(",") if item.strip()]
+        try:
+            return int(value)
+        except ValueError:
+            return 1
+
+    return 1
+
+
+def _build_trainer(cfg: DictConfig, loggers, callbacks=None):
+    trainer_cfg = OmegaConf.to_container(cfg.trainer, resolve=True)
+    ckpt_path = trainer_cfg.pop("resume_from_checkpoint", None)
+
+    trainer_init_params = inspect.signature(Trainer.__init__).parameters
+    trainer_kwargs = {**trainer_cfg}
+
+    if "logger" in trainer_init_params:
+        trainer_kwargs["logger"] = loggers
+    if callbacks is not None and "callbacks" in trainer_init_params:
+        trainer_kwargs["callbacks"] = callbacks
+    if "weights_save_path" in trainer_init_params:
+        trainer_kwargs["weights_save_path"] = str(cfg.general.save_dir)
+
+    if "gpus" in trainer_init_params:
+        trainer_kwargs["gpus"] = cfg.general.gpus
+    else:
+        devices = _parse_devices(cfg.general.gpus)
+        if devices and devices != 0:
+            trainer_kwargs.setdefault("accelerator", "gpu")
+            trainer_kwargs["devices"] = devices
+        else:
+            trainer_kwargs.setdefault("accelerator", "cpu")
+            trainer_kwargs["devices"] = 1
+
+    return Trainer(**trainer_kwargs), ckpt_path
+
+
+def _call_trainer_method(method, model, ckpt_path):
+    method_params = inspect.signature(method).parameters
+    if ckpt_path and "ckpt_path" in method_params:
+        return method(model, ckpt_path=ckpt_path)
+    return method(model)
 
 
 def get_parameters(cfg: DictConfig):
@@ -73,15 +130,8 @@ def train(cfg: DictConfig):
         callbacks.append(hydra.utils.instantiate(cb))
 
     callbacks.append(RegularCheckpointing())
-
-    runner = Trainer(
-        logger=loggers,
-        gpus=cfg.general.gpus,
-        callbacks=callbacks,
-        weights_save_path=str(cfg.general.save_dir),
-        **cfg.trainer,
-    )
-    runner.fit(model)
+    runner, ckpt_path = _build_trainer(cfg, loggers, callbacks=callbacks)
+    _call_trainer_method(runner.fit, model, ckpt_path)
 
 
 @hydra.main(
@@ -91,13 +141,8 @@ def test(cfg: DictConfig):
     # because hydra wants to change dir for some reason
     os.chdir(hydra.utils.get_original_cwd())
     cfg, model, loggers = get_parameters(cfg)
-    runner = Trainer(
-        gpus=cfg.general.gpus,
-        logger=loggers,
-        weights_save_path=str(cfg.general.save_dir),
-        **cfg.trainer,
-    )
-    runner.test(model)
+    runner, ckpt_path = _build_trainer(cfg, loggers)
+    _call_trainer_method(runner.test, model, ckpt_path)
 
 
 @hydra.main(

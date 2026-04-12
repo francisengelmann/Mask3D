@@ -1,6 +1,6 @@
-# Mask3D
+# Mask3D 🎭
 
-Mask3D is a method for 3D semantic instance segmentation. This is an updated code base using current libraries.
+This is the code for the offical Mask3D demo at [mask3d.org](https://www.mask3d.org). Mask3D is a method for 3D semantic instance segmentation. This code base is derived from the original [Mask3d](https://github.com/JonasSchult/Mask3D) code and updated to more recent libraries.
 
 ## Installation Instructions
 
@@ -45,6 +45,7 @@ cd third_party
 git clone --recursive "https://github.com/NVIDIA/MinkowskiEngine"
 cd ..
 chmod +x patch_minkowski_cuda12.sh
+# Apply patches to Minkowski engine
 ./patch_minkowski_cuda12.sh
 cd third_party/MinkowskiEngine
 sudo apt install libopenblas-dev
