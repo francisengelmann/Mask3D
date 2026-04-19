@@ -8,7 +8,7 @@ from datasets.utils import VoxelizeCollate
 from omegaconf import DictConfig
 from pathlib import Path
 import hydra
-from plyfile import PlyData
+from plyfile import PlyData, PlyElement
 import numpy as np
 import open3d as o3d
 import yaml
@@ -171,6 +171,20 @@ def save_prediction_outputs(
     print(f"Saved {output_paths.ply}")
     print(f"Saved {output_paths.segment_semantic}")
     print(f"Saved {output_paths.instance}")
+
+
+def save_scene_ply(scene, output_path: Path):
+    coords, colors, _, normals = scene
+    vertex = np.empty(len(coords), dtype=[
+        ("x", "f4"), ("y", "f4"), ("z", "f4"),
+        ("nx", "f4"), ("ny", "f4"), ("nz", "f4"),
+        ("red", "u1"), ("green", "u1"), ("blue", "u1"),
+    ])
+    vertex["x"], vertex["y"], vertex["z"] = coords[:, 0], coords[:, 1], coords[:, 2]
+    vertex["nx"], vertex["ny"], vertex["nz"] = normals[:, 0], normals[:, 1], normals[:, 2]
+    vertex["red"], vertex["green"], vertex["blue"] = colors[:, 0], colors[:, 1], colors[:, 2]
+    PlyData([PlyElement.describe(vertex, "vertex")], byte_order='<').write(output_path)
+    print(f"Saved {output_path}")
 
 
 def save_predictions_compressed(predictions, output_path: Path):
@@ -422,31 +436,9 @@ def main(cfg: DictConfig):
     mask3d = Mask3D(cfg)
     input_scene_path = Path('office.ply')
     scene = preprocess_scene(input_scene_path)
+    save_scene_ply(scene, Path(f"{input_scene_path.stem}_scene.ply"))
     predictions = mask3d.run_single_scene_inference(scene)
-
-    # predictions.pred_masks: (num_points, num_instances)
-    # predictions.pred_scores: (num_instances,)
-    # predictions.pred_classes: (num_instances,)
-
     save_predictions_compressed(predictions, Path(f"{input_scene_path.stem}_predictions"))
-    
-    # output_paths = build_output_paths(input_scene_path)
-    # save_prediction_outputs(
-    #     scene=scene,
-    #     predictions=predictions,
-    #     threshold=cfg.general.export_threshold,
-    #     output_paths=output_paths,
-    # )
-
-    # visualize_instance_masks(
-    #     scene=scene,
-    #     predictions=predictions,
-    #     threshold=cfg.general.export_threshold,
-    #     output_dir=Path(f"{input_scene_path.stem}_instance_masks_viz"),
-    #     outlier_radius=cfg.general.outlier_removal_radius,
-    #     outlier_min_neighbors=cfg.general.outlier_removal_min_neighbors,
-    # )
-
 
 if __name__ == "__main__":
     main()
