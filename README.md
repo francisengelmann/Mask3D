@@ -77,11 +77,6 @@ Download the model weights for the ScanNet200 test set:
 bash download_checkpoint.sh
 ```
 
-## Ongoing development
-- `./scripts/scannet200/run_scannet200_benchmark_eval.sh` - fully vibe-coded inference
-- `run.py` - more hand-coded version to understand what's going on
-
-
 # Prior Instructions from the Original Mask3D Repo
 
 
